@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx supabase *)",
+      "WebFetch(domain:supabase.com)",
+      "WebSearch",
+      "Bash(node scripts/run-sql.js)",
+      "Bash(node scripts/run-sql.mjs)",
+      "Bash(node scripts/test-db.mjs)",
+      "Bash(npx -y @alexander-zuev/supabase-mcp-server@latest --help)"
+    ]
+  }
+}

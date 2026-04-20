@@ -1,0 +1,113 @@
+import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useAuth } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Home from './views/Home';
+import Login from './views/Login';
+import Logs from './views/Logs';
+import Analysis from './views/Analysis';
+import Settings from './views/Settings';
+import './App.css';
+
+function App() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const location = useLocation();
+  const { user } = useAuth(); // 获取认证状态
+
+  // 检查当前是否在登录页面
+  const isLoginPage = location.pathname === '/login';
+
+  // 监听滚动事件
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // 页面切换时关闭移动菜单
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location]);
+
+  return (
+    <div className="app">
+      {/* 如果不是登录页面，则显示头部导航 */}
+      {!isLoginPage && (
+        <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
+          <div className="header-content">
+            <h1>无人机业务管理系统</h1>
+            <button
+              className="mobile-menu-button"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              ☰
+            </button>
+            <nav className={`nav ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+              <ul>
+                {/* 只有在用户已登录时才显示这些导航项 */}
+                {user && (
+                  <>
+                    <li>
+                      <Link to="/dashboard">首页</Link>
+                    </li>
+                    <li>
+                      <Link to="/logs">日志管理</Link>
+                    </li>
+                    <li>
+                      <Link to="/analysis">数据分析</Link>
+                    </li>
+                    <li>
+                      <Link to="/settings">系统设置</Link>
+                    </li>
+                  </>
+                )}
+              </ul>
+            </nav>
+          </div>
+        </header>
+      )}
+      <main className={`main ${isLoginPage ? 'login-layout' : ''}`}>
+        <Routes>
+          {/* 如果用户已登录则重定向到首页，否则重定向到登录页 */}
+          <Route path="/" element={
+            user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
+          } />
+          {/* 仪表板页面，需要认证 */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          } />
+          <Route path="/login" element={<Login />} />
+          <Route path="/logs" element={
+            <ProtectedRoute>
+              <Logs />
+            </ProtectedRoute>
+          } />
+          <Route path="/analysis" element={
+            <ProtectedRoute>
+              <Analysis />
+            </ProtectedRoute>
+          } />
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </main>
+      {/* 如果不是登录页面，则显示底部 */}
+      {!isLoginPage && (
+        <footer className="footer">
+          <p>&copy; 2026 无人机业务管理系统</p>
+        </footer>
+      )}
+    </div>
+  );
+}
+
+export default App;

@@ -1,0 +1,322 @@
+/* 登录页面样式 */
+.login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: var(--spacing-lg);
+}
+
+/* 禁止登录页面滚动 */
+.login-page {
+  overflow: hidden;
+}
+
+/* 登录容器 */
+.login-container {
+  background-color: var(--card-background);
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: var(--spacing-2xl);
+  width: 100%;
+  max-width: 420px;
+  animation: fadeIn 0.5s ease-out;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+/* 登录头部 */
+.login-header {
+  text-align: center;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.logo-icon {
+  font-size: 3rem;
+}
+
+.logo-name {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.login-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: var(--spacing-sm);
+}
+
+.login-header p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+}
+
+/* 错误信息 */
+.error-message {
+  background-color: rgba(247, 37, 133, 0.1);
+  border-left: 4px solid var(--danger-color);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  color: var(--danger-color);
+  margin-bottom: var(--spacing-lg);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 登录表单 */
+.login-form {
+  animation: fadeIn 1s ease-out 0.6s both;
+}
+
+.form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+.input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: var(--border-radius);
+  border: 1px solid #e0e0e0;
+  transition: var(--transition);
+}
+
+.input-container:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+  transform: translateY(-1px);
+}
+
+.input-icon {
+  position: absolute;
+  left: var(--spacing-md);
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.form-group input {
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) 2.5rem;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  background: transparent;
+  color: var(--text-color);
+  transition: var(--transition);
+  position: relative;
+  z-index: 1;
+}
+
+.form-group input:focus {
+  outline: none;
+}
+
+.form-group input::placeholder {
+  color: var(--text-light);
+}
+
+/* 表单选项 */
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+  font-size: 0.9rem;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.remember-me input[type="checkbox"] {
+  width: auto;
+  accent-color: var(--primary-color);
+}
+
+.remember-me label {
+  margin: 0;
+  font-weight: 400;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.forgot-password {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.forgot-password:hover {
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+
+/* 登录按钮 */
+.login-button {
+  width: 100%;
+  padding: var(--spacing-md);
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xl);
+}
+
+.login-button:hover:not(:disabled) {
+  background: #3b5bdb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+}
+
+.login-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* 加载动画 */
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 登录页脚 */
+.login-footer {
+  text-align: center;
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid #e5e7eb;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .login {
+    padding: var(--spacing-md);
+  }
+
+  .login-container {
+    padding: var(--spacing-xl);
+  }
+
+  .logo-icon {
+    font-size: 2.5rem;
+  }
+
+  .logo-name {
+    font-size: 1.5rem;
+  }
+
+  .login-header h2 {
+    font-size: 1.8rem;
+  }
+
+  .login-header p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: var(--spacing-lg);
+  }
+
+  .login-logo {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .logo-icon {
+    font-size: 2rem;
+  }
+
+  .logo-name {
+    font-size: 1.3rem;
+  }
+
+  .login-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .form-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .forgot-password {
+    align-self: flex-start;
+  }
+}
+
+/* 输入框聚焦效果 */
+.form-group input:focus {
+  color: var(--text-color);
+}
+
+/* 登录容器阴影效果 */
+.login-container {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
