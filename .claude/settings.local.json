@@ -7,7 +7,9 @@
       "Bash(node scripts/run-sql.js)",
       "Bash(node scripts/run-sql.mjs)",
       "Bash(node scripts/test-db.mjs)",
-      "Bash(npx -y @alexander-zuev/supabase-mcp-server@latest --help)"
+      "Bash(npx -y @alexander-zuev/supabase-mcp-server@latest --help)",
+      "Bash(SUPABASE_DB_PASSWORD=OOnzTyny54jUruyl npx supabase db push)",
+      "Bash(SUPABASE_DB_PASSWORD=OOnzTyny54jUruyl supabase db push --db-url \"postgresql://postgres.qamqyjpbdtoylwnxhrfm:OOnzTyny54jUruyl@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres\")"
     ]
   }
 }

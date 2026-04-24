@@ -45,7 +45,6 @@ export const getAllRoles = async (): Promise<Role[]> => {
 
     if (error) {
       if (error.message.includes('Could not find the table')) {
-        console.warn('roles 表不存在，返回模拟数据');
         return mockRoles;
       }
       throw new Error(`获取角色列表失败: ${error.message}`);
@@ -53,7 +52,6 @@ export const getAllRoles = async (): Promise<Role[]> => {
 
     return data || mockRoles;
   } catch (error: any) {
-    console.error('获取角色列表错误:', error);
     return mockRoles;
   }
 };
@@ -73,7 +71,6 @@ export const createRole = async (role: Omit<Role, 'id' | 'created_at'>): Promise
 
     return data;
   } catch (error: any) {
-    console.error('创建角色错误:', error);
     throw error;
   }
 };
@@ -97,7 +94,6 @@ export const updateRole = async (roleId: string, roleData: Partial<Role>): Promi
 
     return data[0];
   } catch (error: any) {
-    console.error('更新角色错误:', error);
     throw error;
   }
 };
@@ -116,7 +112,6 @@ export const deleteRole = async (roleId: string): Promise<boolean> => {
 
     return true;
   } catch (error: any) {
-    console.error('删除角色错误:', error);
     throw error;
   }
 };

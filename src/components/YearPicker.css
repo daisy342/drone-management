@@ -1,0 +1,241 @@
+.year-picker {
+  position: relative;
+  width: 100%;
+}
+
+.year-picker-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  height: 42px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--card-background);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.year-picker-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.year-picker-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.year-picker-trigger:hover {
+  border-color: var(--primary-color);
+}
+
+.year-picker-trigger.open {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+}
+
+.year-value {
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
+
+.year-placeholder {
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+.year-picker-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: transform 0.2s ease;
+}
+
+.year-picker-trigger.open .year-picker-arrow {
+  transform: rotate(180deg);
+}
+
+.year-picker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9998;
+}
+
+.year-picker-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background-color: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  overflow: hidden;
+  min-width: 280px;
+}
+
+.year-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
+
+.year-picker-navigation {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.year-picker-nav-btn {
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.year-picker-nav-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background-color: rgba(67, 97, 238, 0.05);
+}
+
+.year-picker-decade {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 0.95rem;
+  min-width: 120px;
+  text-align: center;
+}
+
+.year-picker-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius);
+  transition: all 0.2s ease;
+}
+
+.year-picker-close:hover {
+  background-color: var(--light-color);
+  color: var(--text-color);
+}
+
+.year-picker-calendar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 16px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.year-picker-item {
+  padding: 12px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--card-background);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  font-weight: 500;
+}
+
+.year-picker-item:hover:not(:disabled) {
+  border-color: var(--primary-color);
+  background-color: rgba(67, 97, 238, 0.05);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.year-picker-item.selected {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+  box-shadow: 0 2px 4px rgba(67, 97, 238, 0.3);
+}
+
+.year-picker-item.current {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  font-weight: 600;
+  position: relative;
+}
+
+.year-picker-item.current::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+}
+
+.year-picker-item.current.selected {
+  color: white;
+}
+
+.year-picker-item.current.selected::after {
+  background-color: white;
+}
+
+.year-picker-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--light-color);
+}
+
+/* 滚动条样式 */
+.year-picker-calendar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.year-picker-calendar::-webkit-scrollbar-track {
+  background: var(--light-color);
+  border-radius: 3px;
+}
+
+.year-picker-calendar::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.year-picker-calendar::-webkit-scrollbar-thumb:hover {
+  background: var(--text-light);
+}

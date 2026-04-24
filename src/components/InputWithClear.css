@@ -1,0 +1,70 @@
+.input-with-clear {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-with-clear input {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--card-background);
+  font-size: 0.95rem;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.input-with-clear input:hover {
+  border-color: var(--primary-color);
+  background-color: #f8fdf8;
+}
+
+.input-with-clear input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+  outline: none;
+}
+
+.input-with-clear input:disabled {
+  background-color: var(--light-color);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.input-with-clear.disabled {
+  cursor: not-allowed;
+}
+
+.input-with-clear .clear-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #999;
+  border-radius: 4px;
+  transition: opacity 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+  padding: 0;
+  margin: 0;
+}
+
+.input-with-clear .clear-btn:hover {
+  color: #f44336;
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+/* 有清除按钮时，input 右侧留出空间 */
+.input-with-clear:not(.disabled) input:not(:placeholder-shown) {
+  padding-right: 32px;
+}

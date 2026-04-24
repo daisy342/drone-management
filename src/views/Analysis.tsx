@@ -1,108 +1,234 @@
 import { useState, useEffect } from 'react';
-import { exportAnalysisReport } from '../services/analysis';
+import {
+  getOverallStatistics,
+  getFlightTrend,
+  getIssueTrend,
+  getIssueDistribution,
+  getBaseStatistics,
+  exportAnalysisReport,
+  Statistics,
+  TrendData,
+  IssueDistribution,
+  BaseStatistics
+} from '../services/analysis';
+import { getAnnualPlanProgress, AnnualPlanProgress } from '../services/annualPlan';
+import { getInspectorStatistics, InspectorStatistics } from '../services/inspectorStats';
+import Select from '../components/CustomSelect';
+import DatePicker from '../components/DatePicker';
+import DateRangePicker from '../components/DateRangePicker';
+import MonthPicker from '../components/MonthPicker';
+import YearPicker from '../components/YearPicker';
 import Navbar from '../components/Navbar';
+import TrendChart from '../components/charts/TrendChart';
+import DistributionChart from '../components/charts/DistributionChart';
+import '../styles/unified-controls.css';
 import './Analysis.css';
 
 const Analysis = () => {
-  const [statistics, setStatistics] = useState<any>(null);
-  const [flightTrend, setFlightTrend] = useState<any[]>([]);
-  const [issueTrend, setIssueTrend] = useState<any[]>([]);
-  const [issueDistribution, setIssueDistribution] = useState<any[]>([]);
-  const [baseStatistics, setBaseStatistics] = useState<any[]>([]);
+  const [statistics, setStatistics] = useState<Statistics | null>(null);
+  const [flightTrend, setFlightTrend] = useState<TrendData[]>([]);
+  const [issueTrend, setIssueTrend] = useState<TrendData[]>([]);
+  const [issueDistribution, setIssueDistribution] = useState<IssueDistribution[]>([]);
+  const [baseStatistics, setBaseStatistics] = useState<BaseStatistics[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [dateRange, setDateRange] = useState({
-    startDate: '',
-    endDate: ''
-  });
+
+  // 设置默认日期范围为最近30天
+  const getDefaultDateRange = () => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - 30);
+    return {
+      startDate: startDate.toISOString().split('T')[0],
+      endDate: endDate.toISOString().split('T')[0]
+    };
+  };
+
+  // 根据周期类型管理不同的日期状态
   const [selectedPeriod, setSelectedPeriod] = useState<'day' | 'week' | 'month' | 'year'>('month');
+  const [dayDate, setDayDate] = useState(() => new Date().toISOString().split('T')[0]); // 按日：当日
+  const [monthDate, setMonthDate] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`; // 按月：当月
+  });
+  const [yearDate, setYearDate] = useState(() => new Date().getFullYear().toString()); // 按年：当年
+  const [dateRange, setDateRange] = useState(getDefaultDateRange()); // 按周：日期范围
+
+  const currentYear = new Date().getFullYear();
+  const [annualPlanProgress, setAnnualPlanProgress] = useState<AnnualPlanProgress[]>([]);
+  const [inspectorStats, setInspectorStats] = useState<InspectorStatistics[]>([]);
+
+  // 根据当前选中的周期类型计算实际的日期范围
+  const getEffectiveDateRange = () => {
+    switch (selectedPeriod) {
+      case 'day':
+        return { startDate: dayDate, endDate: dayDate };
+      case 'month':
+        return { startDate: `${monthDate}-01`, endDate: `${monthDate}-${getLastDayOfMonth(monthDate)}` };
+      case 'year':
+        return { startDate: `${yearDate}-01-01`, endDate: `${yearDate}-12-31` };
+      case 'week':
+      default:
+        return dateRange;
+    }
+  };
+
+  // 获取某月最后一天
+  const getLastDayOfMonth = (monthStr: string): string => {
+    const [year, month] = monthStr.split('-').map(Number);
+    return new Date(year, month, 0).getDate().toString().padStart(2, '0');
+  };
 
   // 加载数据
   useEffect(() => {
     loadData();
-  }, [dateRange, selectedPeriod]);
+  }, [dateRange, selectedPeriod, dayDate, monthDate, yearDate]);
 
   // 加载分析数据
   const loadData = async () => {
     setIsLoading(true);
-    try {
-      // 模拟数据加载
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // 模拟数据
-      const stats = {
-        totalFlights: 128,
-        totalDuration: 3240,
-        totalArea: 56.7,
-        totalIssues: 42,
-        averageDuration: 25.31,
-        issueRate: 32.81
-      };
-      
-      const flight = [
-        { date: '01', value: 12 },
-        { date: '02', value: 15 },
-        { date: '03', value: 10 },
-        { date: '04', value: 18 },
-        { date: '05', value: 14 },
-        { date: '06', value: 20 },
-        { date: '07', value: 16 }
-      ];
-      
-      const issue = [
-        { date: '01', value: 3 },
-        { date: '02', value: 5 },
-        { date: '03', value: 2 },
-        { date: '04', value: 6 },
-        { date: '05', value: 4 },
-        { date: '06', value: 7 },
-        { date: '07', value: 5 }
-      ];
-      
-      const distribution = [
-        { severity: 'low', count: 20, percentage: 47.62 },
-        { severity: 'medium', count: 15, percentage: 35.71 },
-        { severity: 'high', count: 7, percentage: 16.67 }
-      ];
-      
-      const baseStats = [
-        { baseName: '基地A', totalFlights: 50, totalDuration: 1200, totalArea: 20.5, totalIssues: 15 },
-        { baseName: '基地B', totalFlights: 40, totalDuration: 1000, totalArea: 15.2, totalIssues: 12 },
-        { baseName: '基地C', totalFlights: 38, totalDuration: 1040, totalArea: 21.0, totalIssues: 15 }
-      ];
+    const effectiveRange = getEffectiveDateRange();
 
-      setStatistics(stats);
-      setFlightTrend(flight);
-      setIssueTrend(issue);
-      setIssueDistribution(distribution);
-      setBaseStatistics(baseStats);
+    // 并行加载所有数据
+    const loadPromises = [
+      // 1. 加载总体统计数据
+      (async () => {
+        try {
+          const stats = await getOverallStatistics(
+            effectiveRange.startDate || undefined,
+            effectiveRange.endDate || undefined
+          );
+          setStatistics(stats);
+        } catch (err: any) {
+          console.error('统计数据加载失败:', err);
+        }
+      })(),
+
+      // 2. 加载飞行趋势数据
+      (async () => {
+        try {
+          const trend = await getFlightTrend(
+            selectedPeriod,
+            effectiveRange.startDate || undefined,
+            effectiveRange.endDate || undefined
+          );
+          setFlightTrend(trend);
+        } catch (err: any) {
+          console.error('飞行趋势加载失败:', err);
+          setFlightTrend([]);
+        }
+      })(),
+
+      // 3. 加载问题趋势数据
+      (async () => {
+        try {
+          const trend = await getIssueTrend(
+            selectedPeriod,
+            effectiveRange.startDate || undefined,
+            effectiveRange.endDate || undefined
+          );
+          setIssueTrend(trend);
+        } catch (err: any) {
+          console.error('问题趋势加载失败:', err);
+          setIssueTrend([]);
+        }
+      })(),
+
+      // 4. 加载问题分布数据
+      (async () => {
+        try {
+          const distribution = await getIssueDistribution(
+            effectiveRange.startDate || undefined,
+            effectiveRange.endDate || undefined
+          );
+          setIssueDistribution(distribution);
+        } catch (err: any) {
+          console.error('问题分布加载失败:', err);
+          setIssueDistribution([]);
+        }
+      })(),
+
+      // 5. 加载基站统计数据
+      (async () => {
+        try {
+          const baseStats = await getBaseStatistics(
+            effectiveRange.startDate || undefined,
+            effectiveRange.endDate || undefined
+          );
+          setBaseStatistics(baseStats);
+        } catch (err: any) {
+          console.error('基站统计加载失败:', err);
+          setBaseStatistics([]);
+        }
+      })(),
+
+      // 6. 加载年度计划进度
+      (async () => {
+        try {
+          const planProgress = await getAnnualPlanProgress(currentYear);
+          setAnnualPlanProgress(planProgress);
+        } catch (err) {
+          console.log('年度计划数据加载失败:', err);
+          setAnnualPlanProgress([]);
+        }
+      })(),
+
+      // 7. 加载人员巡查统计
+      (async () => {
+        try {
+          const stats = await getInspectorStatistics(
+            effectiveRange.startDate || undefined,
+            effectiveRange.endDate || undefined
+          );
+          setInspectorStats(stats.filter(s => s.totalInspections > 0));
+        } catch (err) {
+          console.log('人员统计加载失败:', err);
+          setInspectorStats([]);
+        }
+      })()
+    ];
+
+    try {
+      await Promise.all(loadPromises);
     } catch (err: any) {
-      setError(err.message || '加载分析数据失败');
+      console.error('加载数据失败:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
   // 处理日期范围变化
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setDateRange(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const handleDateRangeChange = (startDate: string, endDate: string) => {
+    setDateRange({ startDate, endDate });
   };
 
-  // 处理周期变化
-  const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedPeriod(e.target.value as 'day' | 'week' | 'month' | 'year');
+  // 处理周期类型变化
+  const handlePeriodChange = (option: any) => {
+    const period = (option?.value || 'month') as 'day' | 'week' | 'month' | 'year';
+    setSelectedPeriod(period);
+  };
+
+  // 处理单日选择
+  const handleDayChange = (date: string) => {
+    setDayDate(date);
+  };
+
+  // 处理单月选择
+  const handleMonthChange = (month: string) => {
+    setMonthDate(month);
+  };
+
+  // 处理单年选择
+  const handleYearChange = (year: string) => {
+    setYearDate(year);
   };
 
   // 导出报告
   const handleExportReport = async () => {
+    const effectiveRange = getEffectiveDateRange();
     try {
-      await exportAnalysisReport(dateRange.startDate, dateRange.endDate);
+      await exportAnalysisReport(effectiveRange.startDate, effectiveRange.endDate);
     } catch (err: any) {
-      setError(err.message || '导出报告失败');
+      console.error('导出报告失败:', err);
     }
   };
 
@@ -121,86 +247,72 @@ const Analysis = () => {
     <div className="analysis">
       <Navbar />
 
-      {/* 欢迎区域 */}
-      <div className="welcome-section">
-        <div className="welcome-container">
-          <div className="welcome-content">
-            <h2>数据分析 📊</h2>
+      <div className="analysis-container">
+        {/* 顶部筛选栏 - 紧凑布局 */}
+        <div className="analysis-header">
+          <div className="header-title">
+            <h2>数据分析</h2>
             <p>深入分析飞行数据，优化运营效率</p>
           </div>
-        </div>
-      </div>
-
-      <div className="container">
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
-
-        {/* 筛选条件 */}
-        <div className="filter-container">
-          <div className="section-header">
-            <h3>筛选条件</h3>
-          </div>
-          <div className="filter-row">
-            <div className="form-group">
-              <label htmlFor="startDate">开始日期</label>
-              <input 
-                type="date" 
-                id="startDate" 
-                name="startDate" 
-                value={dateRange.startDate} 
-                onChange={handleDateChange} 
-              />
+          <div className="filter-bar-inline">
+            <div className="filter-item" style={{ minWidth: '320px' }}>
+              {selectedPeriod === 'day' && (
+                <DatePicker
+                  value={dayDate}
+                  onChange={handleDayChange}
+                  placeholder="请选择日期"
+                />
+              )}
+              {selectedPeriod === 'week' && (
+                <DateRangePicker
+                  startDate={dateRange.startDate}
+                  endDate={dateRange.endDate}
+                  onChange={handleDateRangeChange}
+                  placeholder="请选择日期范围"
+                />
+              )}
+              {selectedPeriod === 'month' && (
+                <MonthPicker
+                  value={monthDate}
+                  onChange={handleMonthChange}
+                  placeholder="请选择月份"
+                />
+              )}
+              {selectedPeriod === 'year' && (
+                <YearPicker
+                  value={yearDate}
+                  onChange={handleYearChange}
+                  placeholder="请选择年份"
+                />
+              )}
             </div>
-            <div className="form-group">
-              <label htmlFor="endDate">结束日期</label>
-              <input 
-                type="date" 
-                id="endDate" 
-                name="endDate" 
-                value={dateRange.endDate} 
-                onChange={handleDateChange} 
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="period">统计周期</label>
-              <select 
-                id="period" 
-                name="period" 
-                value={selectedPeriod} 
+            <div className="filter-item">
+              <Select
+                value={{ value: selectedPeriod, label: selectedPeriod === 'day' ? '按日' : selectedPeriod === 'week' ? '按周' : selectedPeriod === 'month' ? '按月' : '按年' }}
                 onChange={handlePeriodChange}
-              >
-                <option value="day">按日</option>
-                <option value="week">按周</option>
-                <option value="month">按月</option>
-                <option value="year">按年</option>
-              </select>
+                options={[
+                  { value: 'day', label: '按日' },
+                  { value: 'week', label: '按周' },
+                  { value: 'month', label: '按月' },
+                  { value: 'year', label: '按年' }
+                ]}
+                isClearable={false}
+              />
             </div>
-            <div className="form-group">
-              <label>操作</label>
-              <button 
-                className="btn btn-primary"
-                onClick={handleExportReport}
-              >
-                导出报告
-              </button>
-            </div>
+            <button className="btn btn-primary btn-sm" onClick={handleExportReport}>
+              导出
+            </button>
           </div>
         </div>
 
-        {/* 统计卡片 */}
         {isLoading ? (
           <div className="loading-container">
             <span className="loading"></span>
             <span className="loading-text">加载中...</span>
           </div>
         ) : (
-          <>
-            <div className="section-header">
-              <h3>统计概览</h3>
-            </div>
+          <div className="analysis-content">
+            {/* 统计卡片 */}
             <div className="stats-grid">
               {statistics && (
                 <>
@@ -214,159 +326,172 @@ const Analysis = () => {
               )}
             </div>
 
-            {/* 趋势图表 */}
-            <div className="section-header">
-              <h3>趋势分析</h3>
-            </div>
-            <div className="charts-container">
-              <div className="chart-card">
-                <div className="chart-header">
-                  <h4>飞行趋势</h4>
-                </div>
-                <div className="chart-content">
-                  {flightTrend.length > 0 ? (
-                    <div className="trend-chart">
-                      {flightTrend.map((item, index) => (
-                        <div key={index} className="trend-item">
-                          <div className="trend-date">{item.date}</div>
-                          <div className="trend-bar-container">
-                            <div 
-                              className="trend-bar" 
-                              style={{ 
-                                height: `${(item.value / Math.max(...flightTrend.map(i => i.value))) * 100}%`,
-                                backgroundColor: '#4361ee'
-                              }}
-                            ></div>
-                          </div>
-                          <div className="trend-value">{item.value}</div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="no-data">暂无数据</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="chart-card">
-                <div className="chart-header">
-                  <h4>问题趋势</h4>
-                </div>
-                <div className="chart-content">
-                  {issueTrend.length > 0 ? (
-                    <div className="trend-chart">
-                      {issueTrend.map((item, index) => (
-                        <div key={index} className="trend-item">
-                          <div className="trend-date">{item.date}</div>
-                          <div className="trend-bar-container">
-                            <div 
-                              className="trend-bar" 
-                              style={{ 
-                                height: `${(item.value / Math.max(...issueTrend.map(i => i.value))) * 100}%`,
-                                backgroundColor: '#f72585'
-                              }}
-                            ></div>
-                          </div>
-                          <div className="trend-value">{item.value}</div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="no-data">暂无数据</p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* 问题分布 */}
-            <div className="section-header">
-              <h3>问题分布</h3>
-            </div>
-            <div className="chart-card">
-              <div className="chart-content">
-                {issueDistribution.length > 0 ? (
-                  <div className="distribution-chart">
-                    {issueDistribution.map((item, index) => {
-                      let color = '';
-                      switch (item.severity) {
-                        case 'low':
-                          color = '#4cc9f0';
-                          break;
-                        case 'medium':
-                          color = '#4361ee';
-                          break;
-                        case 'high':
-                          color = '#f72585';
-                          break;
-                        default:
-                          color = '#9E9E9E';
-                      }
-                      return (
-                        <div key={index} className="distribution-item">
-                          <div className="distribution-label">
-                            <span 
-                              className="distribution-color" 
-                              style={{ backgroundColor: color }}
-                            ></span>
-                            {item.severity === 'low' ? '低' : item.severity === 'medium' ? '中' : '高'}
-                          </div>
-                          <div className="distribution-bar-container">
-                            <div 
-                              className="distribution-bar" 
-                              style={{ 
-                                width: `${item.percentage}%`,
-                                backgroundColor: color
-                              }}
-                            ></div>
-                          </div>
-                          <div className="distribution-value">
-                            {item.count} ({item.percentage.toFixed(1)}%)
-                          </div>
-                        </div>
-                      );
-                    })}
+            {/* 第一行：趋势分析 + 问题分布 */}
+            <div className="dashboard-row">
+              <div className="dashboard-col-3">
+                <div className="panel">
+                  <div className="panel-header">
+                    <h4>飞行趋势</h4>
                   </div>
-                ) : (
-                  <p className="no-data">暂无数据</p>
-                )}
+                  <div className="panel-body chart-panel">
+                    {flightTrend.length > 0 ? (
+                      <TrendChart
+                        data={flightTrend.slice(-7)}
+                        title="飞行次数"
+                        color="#4CAF50"
+                        type="line"
+                      />
+                    ) : (
+                      <p className="no-data">暂无数据</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="dashboard-col-3">
+                <div className="panel">
+                  <div className="panel-header">
+                    <h4>问题趋势</h4>
+                  </div>
+                  <div className="panel-body chart-panel">
+                    {issueTrend.length > 0 ? (
+                      <TrendChart
+                        data={issueTrend.slice(-7)}
+                        title="问题数量"
+                        color="#FF9800"
+                        type="bar"
+                      />
+                    ) : (
+                      <p className="no-data">暂无数据</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="dashboard-col-3">
+                <div className="panel">
+                  <div className="panel-header">
+                    <h4>问题分布</h4>
+                  </div>
+                  <div className="panel-body chart-panel">
+                    {issueDistribution.length > 0 ? (
+                      <DistributionChart data={issueDistribution} />
+                    ) : (
+                      <p className="no-data">暂无数据</p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* 基地统计 */}
-            <div className="section-header">
-              <h3>基地统计</h3>
-            </div>
-            <div className="chart-card">
-              <div className="chart-content">
-                {baseStatistics.length > 0 ? (
-                  <table className="base-table">
-                    <thead>
-                      <tr>
-                        <th>基地名称</th>
-                        <th>飞行次数</th>
-                        <th>飞行时长（分钟）</th>
-                        <th>覆盖面积（平方公里）</th>
-                        <th>发现问题数</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {baseStatistics.map((base, index) => (
-                        <tr key={index}>
-                          <td>{base.baseName}</td>
-                          <td>{base.totalFlights}</td>
-                          <td>{base.totalDuration.toFixed(2)}</td>
-                          <td>{base.totalArea.toFixed(2)}</td>
-                          <td>{base.totalIssues}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p className="no-data">暂无数据</p>
-                )}
+            {/* 第二行：年度计划 + 人员统计 + 基站统计 */}
+            <div className="dashboard-row">
+              <div className="dashboard-col-3">
+                <div className="panel">
+                  <div className="panel-header">
+                    <h4>年度计划进度 ({currentYear})</h4>
+                  </div>
+                  <div className="panel-body">
+                    {annualPlanProgress.length > 0 ? (
+                      <div className="plan-list">
+                        {annualPlanProgress.map((plan, index) => (
+                          <div key={index} className="plan-item">
+                            <div className="plan-name">{plan.baseName || '全部基站'}</div>
+                            <div className="plan-metrics">
+                              <div className="plan-metric">
+                                <span className="metric-label">巡查</span>
+                                <div className="mini-progress">
+                                  <div className="mini-bar" style={{ width: `${Math.min(plan.inspectionProgress, 100)}%` }} />
+                                </div>
+                                <span className="metric-value">{plan.actualInspections}/{plan.targetInspections}</span>
+                              </div>
+                              <div className="plan-metric">
+                                <span className="metric-label">面积</span>
+                                <div className="mini-progress">
+                                  <div className="mini-bar" style={{ width: `${Math.min(plan.areaProgress, 100)}%` }} />
+                                </div>
+                                <span className="metric-value">{plan.actualArea.toFixed(0)}/{plan.targetArea.toFixed(0)}km²</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-data">暂无数据</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="dashboard-col-3">
+                <div className="panel">
+                  <div className="panel-header">
+                    <h4>人员巡查统计</h4>
+                  </div>
+                  <div className="panel-body">
+                    {inspectorStats.length > 0 ? (
+                      <table className="compact-table">
+                        <thead>
+                          <tr>
+                            <th>姓名</th>
+                            <th>次数</th>
+                            <th>时长</th>
+                            <th>问题</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {inspectorStats.slice(0, 6).map((inspector, index) => (
+                            <tr key={index}>
+                              <td>{inspector.userName}</td>
+                              <td>{inspector.totalInspections}</td>
+                              <td>{inspector.totalDuration.toFixed(0)}min</td>
+                              <td>{inspector.totalIssues}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p className="no-data">暂无数据</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="dashboard-col-3">
+                <div className="panel">
+                  <div className="panel-header">
+                    <h4>基站统计</h4>
+                  </div>
+                  <div className="panel-body">
+                    {baseStatistics.length > 0 ? (
+                      <table className="compact-table">
+                        <thead>
+                          <tr>
+                            <th>基站</th>
+                            <th>次数</th>
+                            <th>时长</th>
+                            <th>问题</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {baseStatistics.map((base, index) => (
+                            <tr key={index}>
+                              <td>{base.baseName}</td>
+                              <td>{base.totalFlights}</td>
+                              <td>{base.totalDuration.toFixed(0)}min</td>
+                              <td>{base.totalIssues}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p className="no-data">暂无数据</p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>

@@ -1,0 +1,293 @@
+/* 统一下拉控件样式 - 用于普通下拉、级联下拉、带搜索下拉 */
+
+/* 统一控件高度和基础样式 */
+.select-control-base,
+.custom-select-container .react-select__control,
+.cascader-trigger,
+.date-picker-trigger {
+  height: 42px;
+  min-height: 42px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--card-background);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  font-size: 0.95rem;
+}
+
+/* 统一悬停和聚焦状态 */
+.select-control-base:hover,
+.custom-select-container .react-select__control:hover,
+.cascader-trigger:hover,
+.date-picker-trigger:hover {
+  border-color: var(--primary-color);
+  background-color: #f8fdf8;
+}
+
+.select-control-base:focus,
+.select-control-base.open,
+.custom-select-container .react-select__control--is-focused,
+.cascader-trigger.open,
+.date-picker-trigger.open {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+  outline: none;
+}
+
+/* 筛选栏中的统一控件 */
+.filter-bar .select-control-base,
+.filter-bar .custom-select-container .react-select__control,
+.filter-bar .cascader-trigger,
+.filter-bar .date-picker-trigger {
+  height: 40px;
+  min-height: 40px;
+}
+
+/* 普通原生 select 样式统一 */
+.filter-select {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--card-background);
+  font-size: 0.95rem;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px 8px;
+  padding-right: 32px;
+}
+
+.filter-select:hover {
+  border-color: var(--primary-color);
+  background-color: #f8fdf8;
+}
+
+.filter-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+  outline: none;
+}
+
+/* 统一输入框样式 */
+.filter-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--card-background);
+  font-size: 0.95rem;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.filter-input:hover {
+  border-color: var(--primary-color);
+  background-color: #f8fdf8;
+}
+
+.filter-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+  outline: none;
+}
+
+/* 下拉菜单统一样式 */
+.select-menu-base,
+.custom-select-container .react-select__menu,
+.cascader-dropdown,
+.date-picker-dropdown {
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  background-color: var(--card-background);
+  z-index: 9999;
+}
+
+/* 选项统一样式 */
+.select-option-base,
+.custom-select-container .react-select__option,
+.cascader-option {
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-color);
+}
+
+.select-option-base:hover,
+.custom-select-container .react-select__option--is-focused,
+.cascader-option:hover {
+  background-color: rgba(76, 175, 80, 0.05);
+}
+
+.select-option-base.selected,
+.custom-select-container .react-select__option--is-selected,
+.cascader-option.selected {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* 日期选择器特定样式 */
+.date-picker-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.date-picker-value {
+  flex: 1;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.date-picker-value.placeholder {
+  color: var(--text-secondary);
+}
+
+/* 级联选择器特定样式 */
+.cascader-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  cursor: pointer;
+}
+
+.cascader-value,
+.cascader-placeholder {
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cascader-placeholder {
+  color: var(--text-secondary);
+}
+
+/* CustomSelect 统一高度调整 */
+.custom-select-container .react-select__value-container {
+  padding: 0;
+  height: 100%;
+}
+
+.custom-select-container .react-select__single-value {
+  font-size: 0.95rem;
+}
+
+/* 筛选栏布局优化 */
+.filter-bar {
+  background-color: var(--card-background);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  align-items: flex-end;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 1;
+  min-width: 140px;
+  max-width: 200px;
+}
+
+.filter-item label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.filter-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-left: auto;
+  align-items: flex-end;
+}
+
+.filter-actions .btn {
+  height: 40px;
+  padding: 0 20px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .filter-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-item {
+    width: 100%;
+    max-width: none;
+  }
+
+  .filter-actions {
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+}
+
+/* 错误字段样式 - 系统通用 */
+.error-field,
+.error-field-wrapper input,
+.error-field-wrapper textarea,
+.error-field-wrapper .custom-select-container .react-select__control,
+.error-field-wrapper .cascader-trigger,
+.error-field-wrapper .date-picker-trigger {
+  border-color: #f44336 !important;
+  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1) !important;
+}
+
+.error-field-wrapper .btn {
+  border-color: #f44336 !important;
+}
+
+/* 错误字段聚焦样式 */
+.error-field:focus,
+.error-field-wrapper input:focus,
+.error-field-wrapper textarea:focus,
+.error-field-wrapper .custom-select-container .react-select__control--is-focused,
+.error-field-wrapper .cascader-trigger.open,
+.error-field-wrapper .date-picker-trigger.open {
+  border-color: #f44336 !important;
+  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.15) !important;
+}
+
+/* 错误字段悬停样式 */
+.error-field:hover,
+.error-field-wrapper input:hover,
+.error-field-wrapper textarea:hover,
+.error-field-wrapper .custom-select-container .react-select__control:hover,
+.error-field-wrapper .cascader-trigger:hover,
+.error-field-wrapper .date-picker-trigger:hover {
+  border-color: #d32f2f !important;
+}

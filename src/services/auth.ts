@@ -2,8 +2,6 @@ import { supabase } from '../utils/supabase';
 
 // 登录函数
 export const login = async (username: string, password: string) => {
-  console.log('Login attempt with:', username);
-
   try {
     let email: string;
 
@@ -13,10 +11,8 @@ export const login = async (username: string, password: string) => {
     if (isEmail) {
       // 如果输入的是邮箱，直接使用
       email = username;
-      console.log('Using provided email:', email);
     } else {
       // 如果输入的是用户名，需要先通过API获取对应的邮箱
-      console.log('Looking up email for username:', username);
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('email')
@@ -24,31 +20,24 @@ export const login = async (username: string, password: string) => {
         .single();
 
       if (profileError || !profileData) {
-        console.log('User not found:', profileError);
         throw new Error('用户名或密码错误');
       }
 
       email = profileData.email;
-      console.log('Found email:', email);
     }
 
     // 使用获取到的邮箱进行登录
-    console.log('Attempting to sign in with email:', email);
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
     });
 
-    console.log('Sign in result:', { data, error });
-
     if (error) {
-      console.log('Sign in error:', error);
       throw new Error(`用户名或密码错误: ${error.message}`);
     }
 
     return data;
   } catch (error) {
-    console.error('Login error:', error);
     throw error;
   }
 };
@@ -122,7 +111,7 @@ export const getRememberedCredentials = () => {
           try {
             return JSON.parse(credentialsStr);
           } catch (e) {
-            console.error('Failed to parse remembered credentials:', e);
+            return null;
           }
         }
       } else {

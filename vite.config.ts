@@ -6,6 +6,15 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    strictPort: true // 强制使用指定端口，不自动寻找其他端口
+    strictPort: true,
+    host: '127.0.0.1',
+    hmr: {
+      timeout: 30000,
+      overlay: true
+    },
+    watch: {
+      usePolling: true,
+      interval: 1000
+    }
   }
 });

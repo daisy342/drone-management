@@ -1,0 +1,12 @@
+<script>
+fetch('http://localhost:5173/src/views/Users.tsx')
+  .then(r => r.text())
+  .then(text => {
+    const hasContact = text.includes('联系方式');
+    document.body.innerHTML = `<h1>Users.tsx contains '联系方式': ${hasContact}</h1>`;
+  })
+  .catch(e => {
+    document.body.innerHTML = `<h1>Error: ${e.message}</h1>`;
+  });
+</script>
+<body><h1>Loading...</h1></body>

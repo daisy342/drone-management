@@ -24,7 +24,7 @@ export interface IssueDistribution {
   percentage: number;
 }
 
-// 基地统计类型定义
+// 基站统计类型定义
 export interface BaseStatistics {
   baseId: string;
   baseName: string;
@@ -61,14 +61,24 @@ export const getOverallStatistics = async (startDate?: string, endDate?: string)
       const issues = JSON.parse(log.issues as string || '[]');
       return sum + (Array.isArray(issues) ? issues.length : 0);
     } catch (error) {
-      console.error('Error parsing issues:', error);
       return sum;
     }
   }, 0);
 
+  // 计算有问题(至少1个问题)的飞行次数
+  const flightsWithIssues = data.filter(log => {
+    try {
+      const issues = JSON.parse(log.issues as string || '[]');
+      return Array.isArray(issues) && issues.length > 0;
+    } catch {
+      return false;
+    }
+  }).length;
+
   const averageDuration = totalFlights > 0 ? totalDuration / totalFlights : 0;
   const averageArea = totalFlights > 0 ? totalArea / totalFlights : 0;
-  const issueRate = totalFlights > 0 ? (totalIssues / totalFlights) * 100 : 0;
+  // 问题发生率 = 有问题的飞行次数 / 总飞行次数，最大100%
+  const issueRate = totalFlights > 0 ? (flightsWithIssues / totalFlights) * 100 : 0;
 
   return {
     totalFlights,
@@ -246,7 +256,7 @@ export const getIssueDistribution = async (startDate?: string, endDate?: string)
   return distribution;
 };
 
-// 获取基地统计数据
+// 获取基站统计数据
 export const getBaseStatistics = async (startDate?: string, endDate?: string) => {
   let query = supabase.from('logs').select('base_id, flight_duration, coverage_area, issues');
 
@@ -263,24 +273,39 @@ export const getBaseStatistics = async (startDate?: string, endDate?: string) =>
     throw new Error(logError.message);
   }
 
-  // 获取基地信息
-  const { data: baseData, error: baseError } = await supabase.from('bases').select('id, name');
+  // 获取基站信息（从字典表 dictionary，type='base_station'）
+  const { data: baseData, error: baseError } = await supabase
+    .from('dictionary')
+    .select('id, name')
+    .eq('type', 'base_station')
+    .eq('is_active', true);
 
   if (baseError) {
     throw new Error(baseError.message);
   }
 
-  // 创建基地ID到名称的映射
+  // 创建基站ID到名称的映射（id -> name）
   const baseMap = new Map<string, string>();
-  baseData.forEach(base => {
+  baseData?.forEach((base: any) => {
     baseMap.set(base.id, base.name);
   });
 
-  // 按基地分组统计
+  // 按基站分组统计
   const baseStats: Record<string, { totalFlights: number; totalDuration: number; totalArea: number; totalIssues: number }> = {};
 
+  // 默认基站ID（礼嘉站）- 用于修复旧数据
+  const defaultBaseId = baseData?.[0]?.id || '';
+
   logData.forEach(log => {
-    const baseId = log.base_id;
+    let baseId = log.base_id;
+    // 如果 base_id 为空，使用默认基站
+    if (!baseId || baseId === '') {
+      baseId = defaultBaseId;
+    }
+    // 如果没有可用的基站ID，跳过
+    if (!baseId) {
+      return;
+    }
     if (!baseStats[baseId]) {
       baseStats[baseId] = { totalFlights: 0, totalDuration: 0, totalArea: 0, totalIssues: 0 };
     }
@@ -293,10 +318,10 @@ export const getBaseStatistics = async (startDate?: string, endDate?: string) =>
     baseStats[baseId].totalIssues += issues.length;
   });
 
-  // 转换为基地统计数据格式
+  // 转换为基站统计数据格式
   const statistics: BaseStatistics[] = Object.entries(baseStats).map(([baseId, stats]) => ({
     baseId,
-    baseName: baseMap.get(baseId) || baseId,
+    baseName: baseMap.get(baseId) || baseId || '未知基站',
     ...stats,
   }));
 
@@ -323,7 +348,7 @@ export const getMonthlyReport = async (year: number, month: number) => {
   // 获取月度问题分布
   const issueDistribution = await getIssueDistribution(startDate, endDate);
 
-  // 获取月度基地统计
+  // 获取月度基站统计
   const baseStatistics = await getBaseStatistics(startDate, endDate);
 
   return {
@@ -367,7 +392,7 @@ ${issueTrend.map(item => `- ${item.date}: ${item.value} 个`).join('\n')}
 ## 问题分布
 ${issueDistribution.map(item => `- ${item.severity}: ${item.count} 个 (${item.percentage.toFixed(2)}%)`).join('\n')}
 
-## 基地统计
+## 基站统计
 ${baseStatistics.map(item => `- ${item.baseName}: ${item.totalFlights} 次飞行, ${item.totalDuration.toFixed(2)} 分钟, ${item.totalArea.toFixed(2)} 平方公里, ${item.totalIssues} 个问题`).join('\n')}
 
 ## 报告生成时间

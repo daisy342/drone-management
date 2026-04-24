@@ -8,7 +8,8 @@
 .main {
   min-height: 100vh;
   position: relative;
-  overflow: hidden;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* 登录页面特殊布局 */
@@ -72,6 +73,24 @@
   border-top-color: var(--primary-color);
   border-radius: 50%;
   animation: spin 1s ease-in-out infinite;
+}
+
+/* 页面加载动效 */
+.page-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--background-color);
+  gap: var(--spacing-md);
+}
+
+.page-loading p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-top: var(--spacing-md);
 }
 
 @keyframes spin {

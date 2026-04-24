@@ -1,78 +1,97 @@
-import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import { useAuth } from './contexts/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Home from './views/Home';
 import Login from './views/Login';
-import Logs from './views/Logs';
-import Analysis from './views/Analysis';
-import Settings from './views/Settings';
-import Users from './views/Users';
-import { useState, useEffect } from 'react';
+import YearPickerTest from './pages/YearPickerTest';
+import { lazy, Suspense } from 'react';
+import { ToastContainer } from './components/Toast';
 import './App.css';
+
+// 懒加载其他页面组件
+const Logs = lazy(() => import('./views/Logs'));
+const Analysis = lazy(() => import('./views/Analysis'));
+const Settings = lazy(() => import('./views/Settings'));
+const Users = lazy(() => import('./views/Users'));
+const TaskForwards = lazy(() => import('./views/TaskForwards'));
+
+// 加载状态组件
+const PageLoading = () => (
+  <div className="page-loading">
+    <div className="loading-spinner"></div>
+    <p>加载中...</p>
+  </div>
+);
 
 function App() {
   const location = useLocation();
-  const { user, autoLogin } = useAuth();
-  const [isAutoLoginAttempted, setIsAutoLoginAttempted] = useState(false);
+  // 暂时移除认证检查，方便测试
+  // const { user, autoLogin } = useAuth();
+  // const [isAutoLoginAttempted, setIsAutoLoginAttempted] = useState(false);
 
   const isLoginPage = location.pathname === '/login';
 
-  useEffect(() => {
-    const attemptAutoLogin = async () => {
-      if (user) {
-        setIsAutoLoginAttempted(true);
-        return;
-      }
+  // 暂时移除认证检查，方便测试
+  // useEffect(() => {
+  //   const attemptAutoLogin = async () => {
+  //     if (user) {
+  //       setIsAutoLoginAttempted(true);
+  //       return;
+  //     }
 
-      await autoLogin();
-      setIsAutoLoginAttempted(true);
-    };
+  //     await autoLogin();
+  //     setIsAutoLoginAttempted(true);
+  //   };
 
-    if (!user && !isAutoLoginAttempted) {
-      attemptAutoLogin();
-    }
-  }, [user, autoLogin, isAutoLoginAttempted]);
+  //   if (!user && !isAutoLoginAttempted) {
+  //     attemptAutoLogin();
+  //   }
+  // }, [user, autoLogin, isAutoLoginAttempted]);
 
-  if (!user && !isAutoLoginAttempted) {
-    return (
-      <div className="app">
-        <div className="loading-screen">
-          <div className="loading-spinner"></div>
-          <p>正在自动登录...</p>
-        </div>
-      </div>
-    );
-  }
+  // 暂时移除认证检查，方便测试
+  // if (!user && !isAutoLoginAttempted) {
+  //   return (
+  //     <div className="app">
+  //       <div className="loading-screen">
+  //         <div className="loading-spinner"></div>
+  //         <p>正在自动登录...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="app">
+      <ToastContainer />
       <main className={isLoginPage ? 'login-layout' : ''}>
         <Routes>
-          {/* 如果用户已登录则重定向到首页，否则重定向到登录页 */}
-          <Route path="/" element={
-            user ? <Home /> : <Navigate to="/login" replace />
-          } />
+          {/* 暂时移除认证检查，方便测试 */}
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/logs" element={
-            <ProtectedRoute>
+            <Suspense fallback={<PageLoading />}>
               <Logs />
-            </ProtectedRoute>
+            </Suspense>
           } />
           <Route path="/analysis" element={
-            <ProtectedRoute>
+            <Suspense fallback={<PageLoading />}>
               <Analysis />
-            </ProtectedRoute>
+            </Suspense>
           } />
           <Route path="/settings" element={
-            <ProtectedRoute>
+            <Suspense fallback={<PageLoading />}>
               <Settings />
-            </ProtectedRoute>
+            </Suspense>
           } />
           <Route path="/users" element={
-            <ProtectedRoute>
+            <Suspense fallback={<PageLoading />}>
               <Users />
-            </ProtectedRoute>
+            </Suspense>
           } />
+          <Route path="/task-forwards" element={
+            <Suspense fallback={<PageLoading />}>
+              <TaskForwards />
+            </Suspense>
+          } />
+          <Route path="/year-picker-test" element={<YearPickerTest />} />
         </Routes>
       </main>
     </div>

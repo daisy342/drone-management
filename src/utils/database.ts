@@ -11,7 +11,6 @@ export const checkTableExists = async (tableName: string): Promise<boolean> => {
     // 如果没有错误，则表存在
     return !error;
   } catch (err) {
-    console.warn(`Table ${tableName} may not exist:`, err);
     return false;
   }
 };

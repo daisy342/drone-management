@@ -29,7 +29,6 @@ class FileManager {
       }
       return [];
     } catch (error) {
-      console.error('Failed to load tasks:', error);
       return [];
     }
   }
@@ -39,7 +38,7 @@ class FileManager {
     try {
       fs.writeFileSync(this.tasksFile, JSON.stringify(this.tasks, null, 2));
     } catch (error) {
-      console.error('Failed to save tasks:', error);
+      // 忽略保存错误
     }
   }
 

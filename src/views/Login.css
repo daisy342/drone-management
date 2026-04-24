@@ -114,7 +114,7 @@
 
 .input-container:focus-within {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
   transform: translateY(-1px);
 }
 
@@ -125,6 +125,33 @@
   color: var(--text-secondary);
   z-index: 2;
   pointer-events: none;
+}
+
+.password-toggle {
+  position: absolute;
+  right: var(--spacing-md);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  z-index: 2;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-toggle:hover {
+  opacity: 1;
+  color: var(--primary-color);
+}
+
+.password-toggle svg {
+  width: 18px;
+  height: 18px;
 }
 
 .form-group input {
@@ -207,9 +234,9 @@
 }
 
 .login-button:hover:not(:disabled) {
-  background: #3b5bdb;
+  background: #45a049;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
 .login-button:disabled {

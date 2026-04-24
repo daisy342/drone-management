@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { getAllUsers, updateUser, deleteUser, addUser } from '../services/userManagement';
+import Select from '../components/CustomSelect';
 import Navbar from '../components/Navbar';
+import { showToast } from '../components/Toast';
 import './Users.css';
 
 const Users: React.FC = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [formError, setFormError] = useState('');
   const [editingUser, setEditingUser] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
-    role: ''
+    role: '',
+    contact_info: ''
   });
 
   useEffect(() => {
@@ -26,7 +30,9 @@ const Users: React.FC = () => {
       const userData = await getAllUsers();
       setUsers(userData);
     } catch (err: any) {
-      setError(err.message || '获取用户列表失败');
+      const errorMsg = err.message || '获取用户列表失败';
+      setError(errorMsg);
+      showToast('error', errorMsg);
     } finally {
       setLoading(false);
     }
@@ -38,7 +44,8 @@ const Users: React.FC = () => {
       username: user.username || '',
       email: user.email || '',
       password: '',
-      role: user.role || ''
+      role: user.role || '',
+      contact_info: user.contact_info || ''
     });
     setShowForm(true);
   };
@@ -52,7 +59,9 @@ const Users: React.FC = () => {
       await deleteUser(userId);
       loadUsers(); // 重新加载用户列表
     } catch (err: any) {
-      setError(err.message || '删除用户失败');
+      const errorMsg = err.message || '删除用户失败';
+      setError(errorMsg);
+      showToast('error', errorMsg);
     }
   };
 
@@ -65,13 +74,14 @@ const Users: React.FC = () => {
         await updateUser(editingUser.id, formData);
       } else {
         // 新增用户
-        await addUser(formData.username, formData.password, formData.email, formData.role);
+        await addUser(formData.username, formData.password, formData.email, formData.role, formData.contact_info);
       }
       setShowForm(false);
       setEditingUser(null);
       loadUsers(); // 重新加载用户列表
     } catch (err: any) {
-      setError(err.message || (editingUser ? '更新用户失败' : '新增用户失败'));
+      const errorMsg = err.message || (editingUser ? '更新用户失败' : '新增用户失败');
+      showToast('error', errorMsg);
     }
   };
 
@@ -85,14 +95,14 @@ const Users: React.FC = () => {
 
   const handleAddUser = () => {
     setEditingUser(null);
-    setFormData({ username: '', email: '', password: '', role: '' });
+    setFormData({ username: '', email: '', password: '', role: '', contact_info: '' });
     setShowForm(true);
   };
 
   const handleCancel = () => {
     setShowForm(false);
     setEditingUser(null);
-    setFormData({ username: '', email: '', password: '', role: '' });
+    setFormData({ username: '', email: '', password: '', role: '', contact_info: '' });
   };
 
   if (loading) {
@@ -132,12 +142,6 @@ const Users: React.FC = () => {
             <p>管理系统用户账号</p>
           </div>
 
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
-
           {/* 操作按钮 */}
           <div className="action-buttons">
             <button
@@ -160,6 +164,7 @@ const Users: React.FC = () => {
                     <th>ID</th>
                     <th>用户名</th>
                     <th>邮箱</th>
+                    <th>联系方式</th>
                     <th>角色</th>
                     <th>创建时间</th>
                     <th>操作</th>
@@ -171,6 +176,7 @@ const Users: React.FC = () => {
                       <td>{user.id?.substring(0, 8)}...</td>
                       <td>{user.username}</td>
                       <td>{user.email}</td>
+                      <td>{user.contact_info || '-'}</td>
                       <td>
                         <span className={`tag tag-${user.role === 'admin' ? 'success' : user.role === 'user' ? 'info' : 'warning'}`}>
                           {user.role === 'admin' ? '管理员' : user.role === 'user' ? '普通用户' : '查看者'}
@@ -218,7 +224,7 @@ const Users: React.FC = () => {
                   <form onSubmit={handleSubmit}>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="form-group">
-                        <label htmlFor="username">用户名</label>
+                        <label htmlFor="username">用户名<span className="required-mark">*</span></label>
                         <input
                           type="text"
                           id="username"
@@ -229,7 +235,7 @@ const Users: React.FC = () => {
                         />
                       </div>
                       <div className="form-group">
-                        <label htmlFor="email">邮箱</label>
+                        <label htmlFor="email">邮箱<span className="required-mark">*</span></label>
                         <input
                           type="email"
                           id="email"
@@ -241,7 +247,7 @@ const Users: React.FC = () => {
                       </div>
                       {!editingUser && (
                         <div className="form-group col-span-2">
-                          <label htmlFor="password">密码</label>
+                          <label htmlFor="password">密码<span className="required-mark">*</span></label>
                           <input
                             type="password"
                             id="password"
@@ -254,19 +260,35 @@ const Users: React.FC = () => {
                         </div>
                       )}
                       <div className="form-group col-span-2">
-                        <label htmlFor="role">角色</label>
-                        <select
+                        <label htmlFor="role">角色<span className="required-mark">*</span></label>
+                        <Select
                           id="role"
                           name="role"
-                          value={formData.role}
-                          onChange={handleChange}
+                          value={formData.role ? { value: formData.role, label: formData.role === 'admin' ? '管理员' : formData.role === 'user' ? '普通用户' : '查看者' } : null}
+                          onChange={(option: any) => {
+                            setFormData(prev => ({ ...prev, role: option?.value || '' }));
+                          }}
+                          options={[
+                            { value: 'admin', label: '管理员' },
+                            { value: 'user', label: '普通用户' },
+                            { value: 'viewer', label: '查看者' }
+                          ]}
+                          placeholder="选择角色"
+                          isClearable={true}
+                          isSearchable={true}
                           required
-                        >
-                          <option value="">选择角色</option>
-                          <option value="admin">管理员</option>
-                          <option value="user">普通用户</option>
-                          <option value="viewer">查看者</option>
-                        </select>
+                        />
+                      </div>
+                      <div className="form-group col-span-2">
+                        <label htmlFor="contact_info">联系方式</label>
+                        <input
+                          type="text"
+                          id="contact_info"
+                          name="contact_info"
+                          value={formData.contact_info}
+                          onChange={handleChange}
+                          placeholder="电话或邮箱（选填）"
+                        />
                       </div>
                     </div>
                     <div className="drawer-footer">
